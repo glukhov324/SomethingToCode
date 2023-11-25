@@ -2,6 +2,9 @@ import pygame
 import button
 from random import randint
 from pygame.draw import *
+import pygame_gui
+
+
 
 pygame.init()
 
@@ -67,18 +70,26 @@ pygame.display.set_caption("Main Menu")
 font = pygame.font.SysFont("arialblack", 40)
 text_color = (255, 255, 255)
 
+
+
 # load button images
 start_game_img = pygame.image.load('button_images/start_game_button.jpg').convert_alpha()
 pause_img = pygame.image.load('button_images/pause_button.jpg').convert_alpha()
 global_quit_img = pygame.image.load('button_images/global_quit_button.jpg')
 menu_quit_img = pygame.image.load('button_images/quit_menu_button.jpg')
+resume_img = pygame.image.load('button_images/button_prodolzhit.png').convert_alpha()
+exit_img = pygame.image.load('button_images/button_vyjti-v-glavnoe-menyu.png').convert_alpha()
 
 # create button instances
 start_game_button = button.Button(270, 450, start_game_img, 1)
 pause_img_button = button.Button(25, 25, pause_img, 1)
 global_quit_button = button.Button(140, 430, global_quit_img, 1)
 menu_quit_button = button.Button(140, 500, menu_quit_img, 1)
+resume_button = button.Button(270, 100, resume_img, 1)
+exit_button = button.Button(230, 400, exit_img, 1)
+
 user_text = ''
+
 
 
 def show_start_menu():
@@ -124,7 +135,7 @@ def show_start_menu():
 
 def start_game():
     global COLORS, game_stage, score
-    FPS = 0.2
+    FPS = 0.5
     screen = pygame.display.set_mode((weight, height))
     print_text("SCORE:0", 605, 25, font_color=(250, 250, 250), font_size=50)
     pause_img_button.draw(screen)
@@ -154,6 +165,10 @@ def start_game():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 finished = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pause()
+            
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # координаты щелчка мыши
                 x_mouse, y_mouse = event.pos
@@ -216,19 +231,53 @@ def show_game_over():
         '''if start_game_button.draw(screen):
             game_stage = 1'''
         pygame.display.update()
+def show_pause_menu():
+    WHITE = (255, 255, 255)
+    screen.fill(WHITE)
+    resume_button.draw(screen)
+    exit_button.draw(screen)
+    # print_text("Игра на паузе", 50, weight // 2, height // 4)
+    # print_text("Нажмите Enter для продолжения", 30, weight // 2, height // 2)
+    pygame.display.flip()
 
 
+def pause():
+    global game_paused
+    clock = pygame.time.Clock()
+    game_paused = True
+    while game_paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        show_pause_menu()
+        print_text("Общая громкость", 270, 200, font_color=((0, 0, 0)), font_size=24)
+        print_text("Громкость спецэффектов", 270, 265, font_color=((0, 0, 0)), font_size=24)
+        print_text("Громокость музыки", 270, 330, font_color=((0, 0, 0)), font_size=24)
+		
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RETURN]:
+            game_paused = False
+        pygame.display.update()
+        clock.tick(15)
+        
+		
 run = True
 while run:
     if game_stage == 0:
         show_start_menu()
     elif game_stage == 1:
         start_game()
+    elif game_stage == 2:
+        pause()      
     elif game_stage == 3:
         show_game_over()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             run = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pause()
     pygame.display.update()
 pygame.quit()
