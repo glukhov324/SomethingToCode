@@ -232,10 +232,15 @@ def show_game_over():
             game_stage = 1'''
         pygame.display.update()
 def show_pause_menu():
+    global game_paused
     WHITE = (255, 255, 255)
     screen.fill(WHITE)
-    resume_button.draw(screen)
-    exit_button.draw(screen)
+    if game_paused == True:
+        if resume_button.draw(screen):
+            game_paused = False
+        if exit_button.draw(screen):
+            game_paused = False
+            show_start_menu()
     # print_text("Игра на паузе", 50, weight // 2, height // 4)
     # print_text("Нажмите Enter для продолжения", 30, weight // 2, height // 2)
     pygame.display.flip()
@@ -256,8 +261,9 @@ def pause():
         print_text("Громокость музыки", 270, 330, font_color=((0, 0, 0)), font_size=24)
 		
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_RETURN]:
-            game_paused = False
+        
+        # if keys[pygame.K_RETURN]:
+        #     game_paused = False
         pygame.display.update()
         clock.tick(15)
         
