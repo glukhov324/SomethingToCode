@@ -3,11 +3,19 @@ import button
 from random import randint
 from pygame.draw import *
 import pygame_gui
+from pygame_gui.elements.ui_panel import UIPanel
+from pygame_gui.elements.ui_horizontal_slider import UIHorizontalSlider
+
+
+
+
 
 
 
 pygame.init()
-
+pygame.mixer.init()
+pygame.mixer.music.load('67c5c9a1e518177.mp3')
+pygame.mixer.music.set_volume(0.5)
 
 # functions
 def print_text(message, x, y, font_color=(0, 0, 0), font_type='DS_Pixel_Cyr.ttf', font_size=30):
@@ -134,7 +142,7 @@ def show_start_menu():
 
 
 def start_game():
-    global COLORS, game_stage, score
+    global COLORS, game_stage, score, volume
     FPS = 0.5
     screen = pygame.display.set_mode((weight, height))
     print_text("SCORE:0", 605, 25, font_color=(250, 250, 250), font_size=50)
@@ -148,6 +156,7 @@ def start_game():
     BLACK = (0, 0, 0)
     COLORS = [(255, 0, 0), (0, 0, 255), (255, 255, 0), (0, 255, 0), (255, 0, 255), (0, 255, 255)]
     clock = pygame.time.Clock()
+    volume = 0.5
     finished = False
     # scenario=0 - статичный шарик; scenario=1 - статичный квадрат, scenario=2 - ; scenario=3 - квадрат, двигающийся по диагонали
     scenario = randint(0, 1)
@@ -156,10 +165,13 @@ def start_game():
     else:
         x_figure, y_figure, feature_figure = new_square()
     score = 0
+    pygame.mixer.music.play(-1)  # -1 бесконечное воспроизведение
+
 
     pygame.display.update()
     while not finished:
         clock.tick(FPS)
+        
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -208,6 +220,9 @@ def start_game():
             x_figure, y_figure, feature_figure = new_square()
 
         pygame.display.update()
+	
+		
+
 
 
 def show_game_over():
@@ -232,15 +247,50 @@ def show_game_over():
             game_stage = 1'''
         pygame.display.update()
 def show_pause_menu():
-    global game_paused
+    
+    global game_paused, volume
     WHITE = (255, 255, 255)
     screen.fill(WHITE)
+    manager = pygame_gui.UIManager((weight, height))
+    # volume_slider = UIHorizontalSlider(relative_rect=pygame.Rect((10, 10), (180, 20)),start_value=volume,
+    #                                value_range=(0.0, 1.0),
+    #                                manager=manager)
+    
+    voldsa.enable()
+    manager.update(0.0)
+    manager.draw_ui(screen)
+    
+    
+
+    # panel = UIPanel(relative_rect=pygame.Rect((10, 10), (200, 70)), starting_layer_height=0, manager=manager)
+                                   
+
     if game_paused == True:
-        if resume_button.draw(screen):
+        if resume_button.draw(screen):     
             game_paused = False
+            
         if exit_button.draw(screen):
             game_paused = False
+            pygame.mixer.music.stop()
             show_start_menu()
+        for event in pygame.event.get():
+            if event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
+                if event.ui_element == voldsa:
+                    if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONUP:
+                        manager.process_events(event)
+        clock = pygame.time.Clock()
+        time_delta = clock.tick(60)/1000.0
+        manager.update(time_delta)
+        manager.draw_ui(screen)                
+						
+						
+
+						
+						
+
+        
+
+            
     # print_text("Игра на паузе", 50, weight // 2, height // 4)
     # print_text("Нажмите Enter для продолжения", 30, weight // 2, height // 2)
     pygame.display.flip()
